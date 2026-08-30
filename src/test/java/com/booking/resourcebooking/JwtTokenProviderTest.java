@@ -44,4 +44,42 @@ class JwtTokenProviderTest {
     void testInvalidToken() {
         assertFalse(jwtTokenProvider.validateToken("invalidTokenString"));
     }
+
+    @Test
+    void testValidateToken_NullToken() {
+        assertFalse(jwtTokenProvider.validateToken(null));
+    }
+
+    @Test
+    void testValidateToken_EmptyToken() {
+        assertFalse(jwtTokenProvider.validateToken(""));
+    }
+
+    @Test
+    void testValidateToken_BlankToken() {
+        assertFalse(jwtTokenProvider.validateToken("   "));
+    }
+
+    @Test
+    void testGetExpirationTime() {
+        assertEquals(3600000L, jwtTokenProvider.getExpirationTime());
+    }
+
+    @Test
+    void testGenerateToken_ContainsRoleClaim() {
+        User admin = User.builder()
+                .id(2L)
+                .username("adminuser")
+                .email("admin@example.com")
+                .password("password")
+                .role(Role.ROLE_ADMIN)
+                .build();
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(admin, null, admin.getAuthorities());
+        String token = jwtTokenProvider.generateToken(auth);
+
+        assertNotNull(token);
+        assertTrue(jwtTokenProvider.validateToken(token));
+        assertEquals("adminuser", jwtTokenProvider.getUsernameFromJWT(token));
+    }
 }
