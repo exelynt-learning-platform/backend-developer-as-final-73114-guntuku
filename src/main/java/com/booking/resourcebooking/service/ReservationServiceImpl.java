@@ -35,36 +35,14 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     @Transactional
     public ReservationResponse createReservation(ReservationRequest request, User currentUser) {
-        if (!request.getStartTime().isBefore(request.getEndTime())) {
-            throw new BadRequestException("Start time must be before end time");
-        }
+        validateReservationTimes(request.getStartTime(), request.getEndTime());
 
-        Resource resource = resourceRepository.findById(request.getResourceId())
-                .orElseThrow(() -> new ResourceNotFoundException("Resource", "id", request.getResourceId()));
-
-        if (Boolean.FALSE.equals(resource.getAvailable())) {
-            throw new BadRequestException("Resource is currently unavailable for booking");
-        }
-
-        List<Reservation> overlapping = reservationRepository.findOverlappingReservations(
-                resource.getId(), request.getStartTime(), request.getEndTime()
-        );
-
-        if (!overlapping.isEmpty()) {
-            throw new BadRequestException("Resource is already booked for the selected time slot");
-        }
+        Resource resource = fetchResource(request.getResourceId());
+        validateResourceAvailable(resource);
+        validateNoOverlap(resource.getId(), request.getStartTime(), request.getEndTime(), null);
 
         BigDecimal calculatedPrice = calculateTotalPrice(resource.getPricePerHour(), request.getStartTime(), request.getEndTime());
-
-        Reservation reservation = Reservation.builder()
-                .resource(resource)
-                .user(currentUser)
-                .startTime(request.getStartTime())
-                .endTime(request.getEndTime())
-                .status(ReservationStatus.PENDING)
-                .price(calculatedPrice)
-                .notes(request.getNotes())
-                .build();
+        Reservation reservation = buildReservationEntity(resource, currentUser, request.getStartTime(), request.getEndTime(), calculatedPrice, request.getNotes());
 
         Reservation saved = reservationRepository.save(reservation);
         return mapToResponse(saved);
@@ -194,13 +172,56 @@ public class ReservationServiceImpl implements ReservationService {
         return pricePerHour.multiply(hours).setScale(PRICE_SCALE, RoundingMode.HALF_UP);
     }
 
+    private void validateReservationTimes(java.time.LocalDateTime start, java.time.LocalDateTime end) {
+        if (!start.isBefore(end)) {
+            throw new BadRequestException("Start time must be before end time");
+        }
+    }
+
+    private Resource fetchResource(Long resourceId) {
+        return resourceRepository.findById(resourceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Resource", "id", resourceId));
+    }
+
+    private void validateResourceAvailable(Resource resource) {
+        if (Boolean.FALSE.equals(resource.getAvailable())) {
+            throw new BadRequestException("Resource is currently unavailable for booking");
+        }
+    }
+
+    private void validateNoOverlap(Long resourceId, java.time.LocalDateTime start, java.time.LocalDateTime end, Long excludeReservationId) {
+        List<Reservation> overlapping = reservationRepository.findOverlappingReservations(resourceId, start, end);
+        if (excludeReservationId != null) {
+            overlapping = overlapping.stream()
+                    .filter(r -> !r.getId().equals(excludeReservationId))
+                    .collect(Collectors.toList());
+        }
+        if (!overlapping.isEmpty()) {
+            throw new BadRequestException("Resource is already booked for the selected time slot");
+        }
+    }
+
+    private Reservation buildReservationEntity(Resource resource, User user, java.time.LocalDateTime start, java.time.LocalDateTime end, BigDecimal price, String notes) {
+        return Reservation.builder()
+                .resource(resource)
+                .user(user)
+                .startTime(start)
+                .endTime(end)
+                .status(ReservationStatus.PENDING)
+                .price(price)
+                .notes(notes)
+                .build();
+    }
+
+    private static final String DEFAULT_SORT_FIELD = "createdAt";
+
     private static final java.util.Set<String> ALLOWED_SORT_FIELDS = java.util.Arrays.stream(Reservation.class.getDeclaredFields())
             .map(java.lang.reflect.Field::getName)
             .collect(java.util.stream.Collectors.toSet());
 
     private Sort parseSortString(String sort) {
         if (sort == null || sort.trim().isEmpty()) {
-            return Sort.by(Sort.Direction.DESC, "createdAt");
+            return Sort.by(Sort.Direction.DESC, DEFAULT_SORT_FIELD);
         }
         String[] parts = sort.split(",");
         String property = parts[0].trim();
