@@ -111,10 +111,10 @@ public class DataInitializer implements CommandLineRunner {
     private void seedReservations() {
         User user1 = userRepository.findByUsername("user").orElse(null);
         User user2 = userRepository.findByUsername("user2").orElse(null);
-        Resource r1 = resourceRepository.findById(1L).orElse(null);
-        Resource r2 = resourceRepository.findById(2L).orElse(null);
-        Resource r3 = resourceRepository.findById(3L).orElse(null);
-        Resource r4 = resourceRepository.findById(4L).orElse(null);
+        Resource r1 = resourceRepository.findByName("Executive Boardroom A").orElse(null);
+        Resource r2 = resourceRepository.findByName("Tech Conference Room B").orElse(null);
+        Resource r3 = resourceRepository.findByName("Electric Shuttle Van").orElse(null);
+        Resource r4 = resourceRepository.findByName("4K Laser Projector").orElse(null);
 
         if (user1 == null || user2 == null || r1 == null || r2 == null || r3 == null || r4 == null) {
             return;
