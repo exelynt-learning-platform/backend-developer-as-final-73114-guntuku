@@ -1,0 +1,315 @@
+{
+	"info": {
+		"_postman_id": "a92c4b5e-1f2e-48a3-8910-resource-booking-api",
+		"name": "Resource Booking System API",
+		"description": "Postman collection for RESTful Resource Booking System API with JWT authentication, RBAC, resources, reservations, pagination, and filtering.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "adminToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userToken",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login - Admin",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"usernameOrEmail\": \"admin\",\n  \"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Login - User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"usernameOrEmail\": \"user\",\n  \"password\": \"user123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"newuser1\",\n  \"email\": \"newuser1@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"ROLE_USER\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "register"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Resources",
+			"item": [
+				{
+					"name": "Get All Resources",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/resources",
+							"host": ["{{baseUrl}}"],
+							"path": ["resources"]
+						}
+					}
+				},
+				{
+					"name": "Get Resource By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/resources/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["resources", "1"]
+						}
+					}
+				},
+				{
+					"name": "Create Resource (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Innovation Lab X\",\n  \"type\": \"ROOM\",\n  \"description\": \"Equipped with 3D printers and VR rigs\",\n  \"location\": \"Building 5, Room 101\",\n  \"capacity\": 15,\n  \"pricePerHour\": 125.00,\n  \"available\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/resources",
+							"host": ["{{baseUrl}}"],
+							"path": ["resources"]
+						}
+					}
+				},
+				{
+					"name": "Update Resource (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Executive Boardroom A Updated\",\n  \"type\": \"ROOM\",\n  \"description\": \"Upgraded 8K display screen\",\n  \"location\": \"Floor 4, Building 1\",\n  \"capacity\": 25,\n  \"pricePerHour\": 175.00,\n  \"available\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/resources/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["resources", "1"]
+						}
+					}
+				},
+				{
+					"name": "Delete Resource (Admin)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/resources/4",
+							"host": ["{{baseUrl}}"],
+							"path": ["resources", "4"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Reservations",
+			"item": [
+				{
+					"name": "Create Reservation (User)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"resourceId\": 1,\n  \"startTime\": \"2026-10-10T10:00:00\",\n  \"endTime\": \"2026-10-10T12:00:00\",\n  \"notes\": \"Project Architecture Kickoff\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/reservations",
+							"host": ["{{baseUrl}}"],
+							"path": ["reservations"]
+						}
+					}
+				},
+				{
+					"name": "Get All Reservations (Filtered, Paginated, Sorted)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/reservations?status=CONFIRMED&minPrice=50&maxPrice=500&page=0&size=10&sort=createdAt,desc",
+							"host": ["{{baseUrl}}"],
+							"path": ["reservations"],
+							"query": [
+								{ "key": "status", "value": "CONFIRMED" },
+								{ "key": "minPrice", "value": "50" },
+								{ "key": "maxPrice", "value": "500" },
+								{ "key": "page", "value": "0" },
+								{ "key": "size", "value": "10" },
+								{ "key": "sort", "value": "createdAt,desc" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Reservation By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/reservations/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["reservations", "1"]
+						}
+					}
+				},
+				{
+					"name": "Update Reservation Status",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"CANCELLED\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/reservations/1/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["reservations", "1", "status"]
+						}
+					}
+				},
+				{
+					"name": "Delete Reservation",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/reservations/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["reservations", "1"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
