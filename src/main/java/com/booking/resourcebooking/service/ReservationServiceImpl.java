@@ -191,12 +191,19 @@ public class ReservationServiceImpl implements ReservationService {
         return pricePerHour.multiply(hours).setScale(2, RoundingMode.HALF_UP);
     }
 
+    private static final java.util.Set<String> ALLOWED_SORT_FIELDS = java.util.Set.of(
+            "id", "startTime", "endTime", "status", "price", "notes", "createdAt", "updatedAt"
+    );
+
     private Sort parseSortString(String sort) {
         if (sort == null || sort.trim().isEmpty()) {
             return Sort.by(Sort.Direction.DESC, "createdAt");
         }
         String[] parts = sort.split(",");
         String property = parts[0].trim();
+        if (!ALLOWED_SORT_FIELDS.contains(property)) {
+            throw new IllegalArgumentException("Invalid sort field: " + property + ". Allowed fields: " + ALLOWED_SORT_FIELDS);
+        }
         Sort.Direction direction = Sort.Direction.ASC;
         if (parts.length > 1 && "desc".equalsIgnoreCase(parts[1].trim())) {
             direction = Sort.Direction.DESC;
