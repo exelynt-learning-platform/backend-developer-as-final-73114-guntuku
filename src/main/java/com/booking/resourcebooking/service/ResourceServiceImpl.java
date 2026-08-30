@@ -90,14 +90,7 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     private ResourceType parseResourceType(String typeStr) {
-        if (typeStr == null || typeStr.trim().isEmpty()) {
-            throw new BadRequestException("Resource type is required");
-        }
-        try {
-            return ResourceType.valueOf(typeStr.trim().toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Invalid resource type: " + typeStr);
-        }
+        return com.booking.resourcebooking.util.EnumUtils.parseEnum(ResourceType.class, typeStr, "Resource type");
     }
 
     private ResourceResponse mapToResponse(Resource resource) {

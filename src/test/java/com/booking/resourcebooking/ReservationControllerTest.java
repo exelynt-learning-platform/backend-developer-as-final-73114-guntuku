@@ -90,11 +90,30 @@ class ReservationControllerTest {
     @Test
     @WithUserDetails("user")
     void testUpdateReservationStatus() throws Exception {
+        // Create a dedicated reservation to avoid mutating shared dataset reservation ID 1
+        LocalDateTime start = LocalDateTime.now().plusDays(45).withHour(10).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime end = start.plusHours(2);
+
+        ReservationRequest createRequest = ReservationRequest.builder()
+                .resourceId(1L)
+                .startTime(start)
+                .endTime(end)
+                .notes("Temp for status update test")
+                .build();
+
+        String createResponse = mockMvc.perform(post("/reservations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createRequest)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        Long reservationId = objectMapper.readTree(createResponse).get("id").asLong();
+
         ReservationStatusUpdateRequest statusUpdate = ReservationStatusUpdateRequest.builder()
                 .status(ReservationStatus.CANCELLED)
                 .build();
 
-        mockMvc.perform(patch("/reservations/1/status")
+        mockMvc.perform(patch("/reservations/" + reservationId + "/status")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(statusUpdate)))
                 .andExpect(status().isOk())

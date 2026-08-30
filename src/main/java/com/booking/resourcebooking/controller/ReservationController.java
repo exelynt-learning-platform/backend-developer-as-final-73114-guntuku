@@ -8,6 +8,7 @@ import com.booking.resourcebooking.model.ReservationStatus;
 import com.booking.resourcebooking.model.User;
 import com.booking.resourcebooking.service.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -49,7 +50,9 @@ public class ReservationController {
             @RequestParam(name = "maxPrice", required = false) BigDecimal maxPrice,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size,
-            @RequestParam(name = "sort", defaultValue = "createdAt,desc") String sort,
+            @RequestParam(name = "sort", defaultValue = "createdAt,desc")
+            @Parameter(description = "Sorting criteria in format: property(,asc|desc). Allowed properties match entity fields (e.g., id, startTime, endTime, status, price, createdAt).")
+            String sort,
             @AuthenticationPrincipal User currentUser
     ) {
         PagedResponse<ReservationResponse> response = reservationService.getAllReservations(

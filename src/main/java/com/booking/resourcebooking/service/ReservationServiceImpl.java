@@ -194,9 +194,9 @@ public class ReservationServiceImpl implements ReservationService {
         return pricePerHour.multiply(hours).setScale(PRICE_SCALE, RoundingMode.HALF_UP);
     }
 
-    private static final java.util.Set<String> ALLOWED_SORT_FIELDS = java.util.Set.of(
-            "id", "startTime", "endTime", "status", "price", "notes", "createdAt", "updatedAt"
-    );
+    private static final java.util.Set<String> ALLOWED_SORT_FIELDS = java.util.Arrays.stream(Reservation.class.getDeclaredFields())
+            .map(java.lang.reflect.Field::getName)
+            .collect(java.util.stream.Collectors.toSet());
 
     private Sort parseSortString(String sort) {
         if (sort == null || sort.trim().isEmpty()) {
