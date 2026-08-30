@@ -103,20 +103,10 @@ public class ReservationServiceImpl implements ReservationService {
 
         verifyOwnershipOrAdmin(reservation, currentUser);
 
-        if (!request.getStartTime().isBefore(request.getEndTime())) {
-            throw new BadRequestException("Start time must be before end time");
-        }
+        validateReservationTimes(request.getStartTime(), request.getEndTime());
 
-        Resource resource = resourceRepository.findById(request.getResourceId())
-                .orElseThrow(() -> new ResourceNotFoundException("Resource", "id", request.getResourceId()));
-
-        List<Reservation> overlapping = reservationRepository.findOverlappingReservations(
-                resource.getId(), request.getStartTime(), request.getEndTime()
-        ).stream().filter(r -> !r.getId().equals(id)).collect(Collectors.toList());
-
-        if (!overlapping.isEmpty()) {
-            throw new BadRequestException("Resource is already booked for the selected time slot");
-        }
+        Resource resource = fetchResource(request.getResourceId());
+        validateNoOverlap(resource.getId(), request.getStartTime(), request.getEndTime(), id);
 
         BigDecimal calculatedPrice = calculateTotalPrice(resource.getPricePerHour(), request.getStartTime(), request.getEndTime());
 
@@ -215,9 +205,9 @@ public class ReservationServiceImpl implements ReservationService {
 
     private static final String DEFAULT_SORT_FIELD = "createdAt";
 
-    private static final java.util.Set<String> ALLOWED_SORT_FIELDS = java.util.Arrays.stream(Reservation.class.getDeclaredFields())
-            .map(java.lang.reflect.Field::getName)
-            .collect(java.util.stream.Collectors.toSet());
+    private static final java.util.Set<String> ALLOWED_SORT_FIELDS = java.util.Set.of(
+            "id", "startTime", "endTime", "status", "price", "notes", "createdAt", "updatedAt"
+    );
 
     private Sort parseSortString(String sort) {
         if (sort == null || sort.trim().isEmpty()) {
@@ -226,7 +216,7 @@ public class ReservationServiceImpl implements ReservationService {
         String[] parts = sort.split(",");
         String property = parts[0].trim();
         if (!ALLOWED_SORT_FIELDS.contains(property)) {
-            throw new IllegalArgumentException("Invalid sort field: " + property + ". Allowed fields: " + ALLOWED_SORT_FIELDS);
+            throw new BadRequestException("Invalid sort field: " + property + ". Allowed fields: " + ALLOWED_SORT_FIELDS);
         }
         Sort.Direction direction = Sort.Direction.ASC;
         if (parts.length > 1 && "desc".equalsIgnoreCase(parts[1].trim())) {

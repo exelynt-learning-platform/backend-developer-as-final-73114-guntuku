@@ -9,7 +9,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "reservations")
+@Table(name = "reservations", indexes = {
+        @Index(name = "idx_reservation_resource_times", columnList = "resource_id, start_time, end_time")
+})
 @Getter
 @Setter
 @NoArgsConstructor
