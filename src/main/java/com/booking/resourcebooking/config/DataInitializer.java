@@ -34,6 +34,9 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 
+    /**
+     * Seeds initial user accounts if none exist in the database.
+     */
     private void seedUsers() {
         User admin = User.builder()
                 .username("admin")
@@ -61,6 +64,9 @@ public class DataInitializer implements CommandLineRunner {
         userRepository.save(user2);
     }
 
+    /**
+     * Seeds initial catalog resources if none exist in the database.
+     */
     private void seedResources() {
         Resource r1 = Resource.builder()
                 .name("Executive Boardroom A")
@@ -108,6 +114,9 @@ public class DataInitializer implements CommandLineRunner {
         resourceRepository.save(r4);
     }
 
+    /**
+     * Seeds initial sample reservations if none exist in the database.
+     */
     private void seedReservations() {
         User user1 = userRepository.findByUsername("user").orElse(null);
         User user2 = userRepository.findByUsername("user2").orElse(null);

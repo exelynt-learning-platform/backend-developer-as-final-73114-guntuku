@@ -7,6 +7,7 @@ import com.booking.resourcebooking.exception.ResourceNotFoundException;
 import com.booking.resourcebooking.model.Resource;
 import com.booking.resourcebooking.model.ResourceType;
 import com.booking.resourcebooking.repository.ResourceRepository;
+import com.booking.resourcebooking.util.EnumUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,7 +91,7 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     private ResourceType parseResourceType(String typeStr) {
-        return com.booking.resourcebooking.util.EnumUtils.parseEnum(ResourceType.class, typeStr, "Resource type");
+        return EnumUtils.parseEnum(ResourceType.class, typeStr, "Resource type");
     }
 
     private ResourceResponse mapToResponse(Resource resource) {
