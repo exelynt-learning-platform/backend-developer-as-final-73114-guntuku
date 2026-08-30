@@ -2,8 +2,10 @@ package com.booking.resourcebooking.service;
 
 import com.booking.resourcebooking.dto.ResourceRequest;
 import com.booking.resourcebooking.dto.ResourceResponse;
+import com.booking.resourcebooking.exception.BadRequestException;
 import com.booking.resourcebooking.exception.ResourceNotFoundException;
 import com.booking.resourcebooking.model.Resource;
+import com.booking.resourcebooking.model.ResourceType;
 import com.booking.resourcebooking.repository.ResourceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,9 +23,11 @@ public class ResourceServiceImpl implements ResourceService {
     @Override
     @Transactional
     public ResourceResponse createResource(ResourceRequest request) {
+        ResourceType resourceType = parseResourceType(request.getType());
+
         Resource resource = Resource.builder()
                 .name(request.getName())
-                .type(request.getType())
+                .type(resourceType)
                 .description(request.getDescription())
                 .location(request.getLocation())
                 .capacity(request.getCapacity())
@@ -61,8 +65,10 @@ public class ResourceServiceImpl implements ResourceService {
         Resource resource = resourceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Resource", "id", id));
 
+        ResourceType resourceType = parseResourceType(request.getType());
+
         resource.setName(request.getName());
-        resource.setType(request.getType());
+        resource.setType(resourceType);
         resource.setDescription(request.getDescription());
         resource.setLocation(request.getLocation());
         resource.setCapacity(request.getCapacity());
@@ -83,11 +89,22 @@ public class ResourceServiceImpl implements ResourceService {
         resourceRepository.delete(resource);
     }
 
+    private ResourceType parseResourceType(String typeStr) {
+        if (typeStr == null || typeStr.trim().isEmpty()) {
+            throw new BadRequestException("Resource type is required");
+        }
+        try {
+            return ResourceType.valueOf(typeStr.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Invalid resource type: " + typeStr);
+        }
+    }
+
     private ResourceResponse mapToResponse(Resource resource) {
         return ResourceResponse.builder()
                 .id(resource.getId())
                 .name(resource.getName())
-                .type(resource.getType())
+                .type(resource.getType() != null ? resource.getType().name() : null)
                 .description(resource.getDescription())
                 .location(resource.getLocation())
                 .capacity(resource.getCapacity())
