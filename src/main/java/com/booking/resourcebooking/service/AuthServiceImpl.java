@@ -36,17 +36,9 @@ public class AuthServiceImpl implements AuthService {
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = tokenProvider.generateToken(authentication);
-
         User user = (User) authentication.getPrincipal();
 
-        return AuthResponse.builder()
-                .accessToken(token)
-                .tokenType("Bearer")
-                .expiresIn(tokenProvider.getExpirationTime() / 1000)
-                .username(user.getUsername())
-                .role(user.getRole().name())
-                .build();
+        return generateAuthResponse(authentication, user);
     }
 
     @Override
@@ -70,8 +62,25 @@ public class AuthServiceImpl implements AuthService {
                 .role(userRole)
                 .build();
 
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
-        return login(new LoginRequest(registerRequest.getUsername(), registerRequest.getPassword()));
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                savedUser, null, savedUser.getAuthorities()
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        return generateAuthResponse(authentication, savedUser);
+    }
+
+    private AuthResponse generateAuthResponse(Authentication authentication, User user) {
+        String token = tokenProvider.generateToken(authentication);
+
+        return AuthResponse.builder()
+                .accessToken(token)
+                .tokenType("Bearer")
+                .expiresIn(tokenProvider.getExpirationTime() / 1000)
+                .username(user.getUsername())
+                .role(user.getRole().name())
+                .build();
     }
 }

@@ -2,22 +2,16 @@ package com.booking.resourcebooking;
 
 import com.booking.resourcebooking.dto.ReservationRequest;
 import com.booking.resourcebooking.dto.ReservationStatusUpdateRequest;
-import com.booking.resourcebooking.model.*;
-import com.booking.resourcebooking.repository.ReservationRepository;
-import com.booking.resourcebooking.repository.ResourceRepository;
-import com.booking.resourcebooking.repository.UserRepository;
+import com.booking.resourcebooking.model.ReservationStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static org.hamcrest.Matchers.*;
@@ -33,28 +27,6 @@ class ReservationControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private ResourceRepository resourceRepository;
-
-    @Autowired
-    private ReservationRepository reservationRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    private LocalDateTime futureStart;
-    private LocalDateTime futureEnd;
-
-    @BeforeEach
-    void setUp() {
-        // Build dynamic future dates to ensure @Future validation always passes
-        futureStart = LocalDateTime.now().plusDays(10).withHour(10).withMinute(0).withSecond(0).withNano(0);
-        futureEnd = futureStart.plusHours(2);
-    }
 
     @Test
     @WithUserDetails("user")

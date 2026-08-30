@@ -24,8 +24,9 @@ public class Resource {
     @Column(nullable = false, length = 100)
     private String name;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
-    private String type; // e.g. ROOM, VEHICLE, EQUIPMENT
+    private ResourceType type;
 
     @Column(length = 500)
     private String description;

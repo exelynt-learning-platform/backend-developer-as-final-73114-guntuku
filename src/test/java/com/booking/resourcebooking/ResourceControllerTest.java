@@ -156,6 +156,23 @@ class ResourceControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void testCreateResource_InvalidType_BadRequest() throws Exception {
+        ResourceRequest request = ResourceRequest.builder()
+                .name("Invalid Room Type")
+                .type("INVALID_TYPE")
+                .pricePerHour(new BigDecimal("50.00"))
+                .capacity(5)
+                .build();
+
+        mockMvc.perform(post("/resources")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Invalid resource type: INVALID_TYPE"));
+    }
+
+    @Test
     void testGetAllResources_Unauthenticated_Unauthorized() throws Exception {
         mockMvc.perform(get("/resources"))
                 .andExpect(status().isUnauthorized());

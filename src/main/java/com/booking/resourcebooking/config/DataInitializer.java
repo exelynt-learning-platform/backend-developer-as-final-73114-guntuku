@@ -53,7 +53,7 @@ public class DataInitializer implements CommandLineRunner {
             // Seed Resources
             Resource r1 = Resource.builder()
                     .name("Executive Boardroom A")
-                    .type("ROOM")
+                    .type(ResourceType.ROOM)
                     .description("High-end boardroom equipped with video conferencing setup.")
                     .location("Floor 4, Building 1")
                     .capacity(20)
@@ -63,7 +63,7 @@ public class DataInitializer implements CommandLineRunner {
 
             Resource r2 = Resource.builder()
                     .name("Tech Conference Room B")
-                    .type("ROOM")
+                    .type(ResourceType.ROOM)
                     .description("Modern room ideal for team huddles and workshops.")
                     .location("Floor 2, Building 1")
                     .capacity(10)
@@ -73,7 +73,7 @@ public class DataInitializer implements CommandLineRunner {
 
             Resource r3 = Resource.builder()
                     .name("Electric Shuttle Van")
-                    .type("VEHICLE")
+                    .type(ResourceType.VEHICLE)
                     .description("8-seater electric van for campus transit.")
                     .location("Main Garage")
                     .capacity(8)
@@ -83,7 +83,7 @@ public class DataInitializer implements CommandLineRunner {
 
             Resource r4 = Resource.builder()
                     .name("4K Laser Projector")
-                    .type("EQUIPMENT")
+                    .type(ResourceType.EQUIPMENT)
                     .description("Ultra-bright 4K projector for presentations.")
                     .location("IT Storage Room")
                     .capacity(1)

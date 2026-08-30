@@ -182,13 +182,16 @@ public class ReservationServiceImpl implements ReservationService {
         }
     }
 
+    private static final BigDecimal MINUTES_PER_HOUR = BigDecimal.valueOf(60);
+    private static final int PRICE_SCALE = 2;
+
     private BigDecimal calculateTotalPrice(BigDecimal pricePerHour, java.time.LocalDateTime start, java.time.LocalDateTime end) {
-        long minutes = Duration.between(start, end).toMinutes();
-        if (minutes <= 0) {
-            minutes = 60; // minimum 1 hour if equal
+        if (!start.isBefore(end)) {
+            throw new BadRequestException("Start time must be before end time");
         }
-        BigDecimal hours = BigDecimal.valueOf(minutes).divide(BigDecimal.valueOf(60), 2, RoundingMode.HALF_UP);
-        return pricePerHour.multiply(hours).setScale(2, RoundingMode.HALF_UP);
+        long minutes = Duration.between(start, end).toMinutes();
+        BigDecimal hours = BigDecimal.valueOf(minutes).divide(MINUTES_PER_HOUR, PRICE_SCALE, RoundingMode.HALF_UP);
+        return pricePerHour.multiply(hours).setScale(PRICE_SCALE, RoundingMode.HALF_UP);
     }
 
     private static final java.util.Set<String> ALLOWED_SORT_FIELDS = java.util.Set.of(
@@ -216,7 +219,7 @@ public class ReservationServiceImpl implements ReservationService {
                 .id(reservation.getId())
                 .resourceId(reservation.getResource().getId())
                 .resourceName(reservation.getResource().getName())
-                .resourceType(reservation.getResource().getType())
+                .resourceType(reservation.getResource().getType() != null ? reservation.getResource().getType().name() : null)
                 .userId(reservation.getUser().getId())
                 .username(reservation.getUser().getUsername())
                 .userEmail(reservation.getUser().getEmail())
