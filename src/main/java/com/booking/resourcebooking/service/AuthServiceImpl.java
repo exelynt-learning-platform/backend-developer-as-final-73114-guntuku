@@ -60,7 +60,8 @@ public class AuthServiceImpl implements AuthService {
             throw new BadRequestException("Email address is already in use!");
         }
 
-        Role userRole = registerRequest.getRole() != null ? registerRequest.getRole() : Role.ROLE_USER;
+        // Always assign ROLE_USER during registration to prevent privilege escalation
+        Role userRole = Role.ROLE_USER;
 
         User user = User.builder()
                 .username(registerRequest.getUsername())
