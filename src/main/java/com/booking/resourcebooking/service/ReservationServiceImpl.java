@@ -150,7 +150,6 @@ public class ReservationServiceImpl implements ReservationService {
         }
     }
 
-    private static final BigDecimal MINUTES_PER_HOUR = BigDecimal.valueOf(60);
     private static final int PRICE_SCALE = 2;
 
     private BigDecimal calculateTotalPrice(BigDecimal pricePerHour, java.time.LocalDateTime start, java.time.LocalDateTime end) {
@@ -158,7 +157,7 @@ public class ReservationServiceImpl implements ReservationService {
             throw new BadRequestException("Start time must be before end time");
         }
         long minutes = Duration.between(start, end).toMinutes();
-        BigDecimal hours = BigDecimal.valueOf(minutes).divide(MINUTES_PER_HOUR, PRICE_SCALE, RoundingMode.HALF_UP);
+        BigDecimal hours = BigDecimal.valueOf(minutes).divide(BigDecimal.valueOf(60), PRICE_SCALE, RoundingMode.HALF_UP);
         return pricePerHour.multiply(hours).setScale(PRICE_SCALE, RoundingMode.HALF_UP);
     }
 
