@@ -91,7 +91,7 @@ class ReservationControllerTest {
     @WithUserDetails("user")
     void testUpdateReservationStatus() throws Exception {
         // Create a dedicated reservation to avoid mutating shared dataset reservation ID 1
-        LocalDateTime start = LocalDateTime.now().plusDays(45).withHour(10).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime start = LocalDateTime.now().plusDays(10).withHour(10).withMinute(0).withSecond(0).withNano(0);
         LocalDateTime end = start.plusHours(2);
 
         ReservationRequest createRequest = ReservationRequest.builder()
@@ -182,7 +182,7 @@ class ReservationControllerTest {
     @WithUserDetails("admin")
     void testDeleteReservation_Admin() throws Exception {
         // Create a reservation first, then delete it
-        LocalDateTime start = LocalDateTime.now().plusDays(50).withHour(9).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime start = LocalDateTime.now().plusDays(15).withHour(9).withMinute(0).withSecond(0).withNano(0);
         LocalDateTime end = start.plusHours(1);
 
         ReservationRequest request = ReservationRequest.builder()
